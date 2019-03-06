@@ -59,7 +59,6 @@ class Game_Wind(Wind):
         super().design()
 
         self.UpLayout = QHBoxLayout()
-        self.MidLayout = QHBoxLayout()
         self.DownLayout = QHBoxLayout()
         self.TotalLayout = QVBoxLayout()
         self.info_text=Text("시작해주세요!", self)
@@ -68,13 +67,12 @@ class Game_Wind(Wind):
         self.UpLayout.addWidget(Text("원주율 π 외우기! (소수점 아래부터 쳐주세요)", self))
         self.UpLayout.addStretch(1)
 
-        self.MidLayout.addStretch(1)
-        self.MidLayout.addWidget(self.info_text)
-        self.MidLayout.addStretch(1)
+        self.DownLayout.addStretch(1)
+        self.DownLayout.addWidget(self.info_text)
+        self.DownLayout.addStretch(1)
 
         self.TotalLayout.addStretch(2)
         self.TotalLayout.addLayout(self.UpLayout)
-        self.TotalLayout.addLayout(self.MidLayout)
         self.TotalLayout.addStretch(1)
         self.TotalLayout.addLayout(self.DownLayout)
         self.TotalLayout.addStretch(2)
