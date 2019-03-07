@@ -3,12 +3,6 @@ import sys
 from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtGui import QCloseEvent, QFont
 from PyQt5.QtWidgets import QAction, QApplication, QHBoxLayout, QLabel, QVBoxLayout, QWidget, QMessageBox
-import copy
-
-app = QApplication(sys.argv)
-screen = app.primaryScreen()
-size = screen.size()
-(screen_width, screen_height) = (size.width(), size.height())
 
 f = open("pi_under_point.txt", "r")
 pi_numbers = f.readline()
@@ -16,18 +10,17 @@ f.close()
 pi_numbers = list(map(int, list(pi_numbers)))
 
 def alert_message(origin, alert_name, alert_detail):
-    """
-    경고 창을 띄웁니다. 닫기 전엔 다른 걸 할 수 없습니다.
-    :parameter origin: 이 경고창이 어디서 띄워지는지
-    :parameter alert_name: 경고 창의 제목
-    :parameter alert_detail: 경고 창 내용
-    """
     msg = QMessageBox()  # 메시지 객체 생성
     msg.setIcon(QMessageBox.Critical)  # 아이콘: 빨간 X자
     msg.setWindowTitle(alert_name)  # 창 이름
     msg.setText(alert_detail)  # 창 내용
     msg.setStandardButtons(QMessageBox.Ok)  # 버튼 1개 추가: ok 버튼
     msg.exec_()  # 실행하기(이거 끄기 전에 못 끔)
+
+def text_to_layout_center(layout, text):
+    layout.addStretch(1)
+    layout.addWidget(text)
+    layout.addStretch(1)
 
 class Wind(QWidget):
     def __init__(self, name):
@@ -37,7 +30,7 @@ class Wind(QWidget):
         self.setup()  # 셋업
 
     def design(self):
-        self.setFont(QFont("KoPub돋움체 Light", 48))  # 폰트 설정
+        self.setFont(QFont("조선일보명조", 48))  # 폰트 설정
 
     def setup(self):
         self.show()  # 창 보이기
@@ -48,7 +41,6 @@ class Wind(QWidget):
     def refresh(self):
         self.update()
 
-
 class Game_Wind(Wind):
     def __init__(self, name):
         self.index = 0  # 시스템 상: 맞추어야 하는 자리 수, 표시: 지금까지 맞춘 자리 수
@@ -58,23 +50,24 @@ class Game_Wind(Wind):
         # 레이아웃 꾸미기
         super().design()
 
-        self.UpLayout = QHBoxLayout()
-        self.DownLayout = QHBoxLayout()
+        self.TitleLayout = QHBoxLayout()
+        self.InfoLayout = QHBoxLayout()
+        self.RecordLayout = QHBoxLayout()
         self.TotalLayout = QVBoxLayout()
-        self.info_text=Text("시작해주세요!", self)
 
-        self.UpLayout.addStretch(1)
-        self.UpLayout.addWidget(Text("원주율 π 외우기! (소수점 아래부터 쳐주세요)", self))
-        self.UpLayout.addStretch(1)
+        self.info_text=Text("시작하십시오. (소수점 아래부터)", self)
+        self.record_string="3."
+        self.record_text = Text(self.record_string,self)
 
-        self.DownLayout.addStretch(1)
-        self.DownLayout.addWidget(self.info_text)
-        self.DownLayout.addStretch(1)
+        text_to_layout_center(self.TitleLayout, Text("원주율 π 외우기", self))
+        text_to_layout_center(self.InfoLayout, self.info_text)
+        text_to_layout_center(self.RecordLayout, self.record_text)
 
         self.TotalLayout.addStretch(2)
-        self.TotalLayout.addLayout(self.UpLayout)
+        self.TotalLayout.addLayout(self.TitleLayout)
+        self.TotalLayout.addLayout(self.InfoLayout)
         self.TotalLayout.addStretch(1)
-        self.TotalLayout.addLayout(self.DownLayout)
+        self.TotalLayout.addLayout(self.RecordLayout)
         self.TotalLayout.addStretch(2)
 
         self.setLayout(self.TotalLayout)
@@ -85,67 +78,39 @@ class Game_Wind(Wind):
 
     def keyPressEvent(self, QKeyEvent):
         Flag=False
-        if QKeyEvent.key() == Qt.Key_0 or QKeyEvent.key() == Qt.Key_P:
+        keyPressed=QKeyEvent.key()-Qt.Key_0 # 0부터 9까지는 순서대로 있어서 이렇게 가능
+        if 0<=keyPressed<=9:
             Flag=True
-            if 0!=pi_numbers[self.index]:
+            if keyPressed!=pi_numbers[self.index]:
                 self.game_over()
                 return
-        elif QKeyEvent.key() == Qt.Key_1 or QKeyEvent.key() == Qt.Key_Q:
-            Flag=True
-            if 1!=pi_numbers[self.index]:
-                self.game_over()
-                return
-        elif QKeyEvent.key() == Qt.Key_2 or QKeyEvent.key() == Qt.Key_W:
-            Flag=True
-            if 2!=pi_numbers[self.index]:
-                self.game_over()
-                return
-        elif QKeyEvent.key() == Qt.Key_3 or QKeyEvent.key() == Qt.Key_E:
-            Flag=True
-            if 3!=pi_numbers[self.index]:
-                self.game_over()
-                return
-        elif QKeyEvent.key() == Qt.Key_4 or QKeyEvent.key() == Qt.Key_R:
-            Flag=True
-            if 4!=pi_numbers[self.index]:
-                self.game_over()
-                return
-        elif QKeyEvent.key() == Qt.Key_5 or QKeyEvent.key() == Qt.Key_T:
-            Flag=True
-            if 5!=pi_numbers[self.index]:
-                self.game_over()
-                return
-        elif QKeyEvent.key() == Qt.Key_6 or QKeyEvent.key() == Qt.Key_Y:
-            Flag=True
-            if 6!=pi_numbers[self.index]:
-                self.game_over()
-                return
-        elif QKeyEvent.key() == Qt.Key_7 or QKeyEvent.key() == Qt.Key_U:
-            Flag=True
-            if 7!=pi_numbers[self.index]:
-                self.game_over()
-                return
-        elif QKeyEvent.key() == Qt.Key_8 or QKeyEvent.key() == Qt.Key_I:
-            Flag=True
-            if 8!=pi_numbers[self.index]:
-                self.game_over()
-                return
-        elif QKeyEvent.key() == Qt.Key_9 or QKeyEvent.key() == Qt.Key_O:
-            Flag=True
-            if 9!=pi_numbers[self.index]:
-                self.game_over()
-                return
+                
         if Flag:
-            self.info_text.setText("마지막으로 누른 키: "+str(pi_numbers[self.index]))
+            self.info_text.setText("")
+            self.record_update(keyPressed)
             self.index+=1
         else:
-            self.info_text.setText("제대로 눌러주세요.")
+            self.info_text.setText("제대로 눌러주십시오...")
         self.refresh()
+
+    def record_update(self, keyPressed):
+        if self.index%6==0:
+            if len(self.record_string)>=30:
+                self.record_string=self.record_string[1:]+" "
+            else:
+                self.record_string+=" "
+        if len(self.record_string)>=30:
+            self.record_string=self.record_string[1:]+str(keyPressed)
+        else:
+            self.record_string+=str(keyPressed)
+        self.record_text.setText(self.record_string)
 
     def game_over(self):
         alert_message(self,"오답!","정답은 "+str(pi_numbers[self.index])+"입니다.\n당신의 점수: "+str(self.index))
         self.index=0
-        self.info_text.setText("시작해주세요!")
+        self.info_text.setText("시작하십시오. (소수점 아래부터)")
+        self.record_string="3."
+        self.record_text.setText(self.record_string)
         self.refresh()
 
 class Text(QLabel):
@@ -157,6 +122,6 @@ class Text(QLabel):
         self.setFixedSize(self.sizeHint())  # 크기 설정
         self.show()
 
-
+app = QApplication(sys.argv)
 intro = Game_Wind("Pi Memorizing")
 sys.exit(app.exec_())
